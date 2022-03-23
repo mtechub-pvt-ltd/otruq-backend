@@ -2,6 +2,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const vehicleService = require("./services");
+const vehicleSchema = require("./vehicleSchema");
+const mongoose = require("mongoose");
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -15,7 +17,8 @@ router.use(bodyParser.urlencoded({ extended: true }));
     "plateCode":"851",
     "yearOfManufacture": 2014,
     "companyOfManufacture":"Suzuki",
-    "vehicleColor":"Grey"
+    "vehicleColor":"Grey",
+    "driver":"5e9f8f8f8f8f8f8f8f8f8f8f",
 }
 */
 router.route("/addVehicle").post((request, response) => {
@@ -35,10 +38,24 @@ router.route("/addVehicle").post((request, response) => {
 
 router.route("/viewVehicle/:id").get((request, response) => {
   let id = request.params.id;
-  vehicleService
-    .viewSpecificVehicle(id)
+  vehicleSchema
+    .aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "driverprofiles",
+          localField: "driver",
+          foreignField: "_id",
+          as: "driver",
+        },
+      },
+    ])
     .then((result) => {
-      response.status(result.statusCode || 200).json(result);
+      response.status(200).json(result);
     })
     .catch((err) => {
       response.status(500).json(err);

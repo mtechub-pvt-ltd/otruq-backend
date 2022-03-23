@@ -6,7 +6,8 @@ const vehicleSchema = new mongoose.Schema({
   plateCode: { type: String, required: true },
   yearOfManufacture: { type: Number, required: true },
   companyOfManufacture: { type: String, required: true },
-  vehicleColor: { type: String, required: true }
+  vehicleColor: { type: String, required: true },
+  driver: { type: mongoose.Schema.Types.ObjectId, ref: "driverProfile" },
 });
 
-module.exports=mongoose.model("vehicleSchema", vehicleSchema);
+module.exports = mongoose.model("vehicleSchema", vehicleSchema);

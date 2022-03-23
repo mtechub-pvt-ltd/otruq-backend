@@ -19,13 +19,16 @@ async function saveVehicle(data) {
 
 // View Vehicle
 async function viewVehicle() {
-  const results = await Vehicle.find()
-    .then((result) => {
-      return result;
-    })
-    .catch((error) => {
-      return { message: "Couldn't display data", statusCode: 400, error };
-    });
+  const results = await Vehicle.aggregate([
+    {
+      $lookup: {
+        from: "driverprofiles",
+        localField: "driver",
+        foreignField: "_id",
+        as: "driver",
+      },
+    },
+  ]);
   return results;
 }
 
