@@ -7,6 +7,7 @@ const {
   removeImage,
 } = require("../../../middleware/multer");
 const Documents = require("./documentSchema");
+const mongoose = require("mongoose");
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -29,6 +30,7 @@ router.route("/addDriverDocuments").post((request, response) => {
         idCardBack: uploadPath + request.files[1].filename,
         driverLicense: uploadPath + request.files[2].filename,
         vehicleOwnership: uploadPath + request.files[3].filename,
+        driver: request.body.driver,
       };
       let driverDocuments = new Documents(data);
       driverDocuments
@@ -39,7 +41,7 @@ router.route("/addDriverDocuments").post((request, response) => {
         .catch((err) => {
           response
             .status(400)
-            .send({ message: "Error in saving data", statusCode: 400, err });
+            .send({ message: "Error in saving data", err });
         });
     } else {
       request.files.forEach((element) => {
@@ -51,22 +53,53 @@ router.route("/addDriverDocuments").post((request, response) => {
 });
 
 router.route("/viewDriverDocuments/:id").get((request, response) => {
-  Documents.findById(request.params.id)
+  Documents.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(request.params.id),
+      },
+    },
+    {
+      $lookup: {
+        from: "driverprofiles",
+        localField: "driver",
+        foreignField: "_id",
+        as: "driver",
+      },
+    },
+  ])
     .then((result) => {
-      response.status(200).send({ message: "Documents found", result });
+      if (result.length > 0) {
+        response.status(200).send({ message: "Documents found", result });
+      } else {
+        response.status(400).send({ message: "Documents not found" });
+      }
     })
     .catch((err) => {
-      response.status(400).send({ message: "Error in finding documents", err });
+      response.status(500).json(err);
     });
 });
 
 router.route("/viewDriverDocuments").get((request, response) => {
-  Documents.find({})
+  Documents.aggregate([
+    {
+      $lookup: {
+        from: "driverprofiles",
+        localField: "driver",
+        foreignField: "_id",
+        as: "driver",
+      },
+    },
+  ])
     .then((result) => {
-      response.status(200).send({ message: "Documents found", result });
+      if (result) {
+        response.status(200).send({ message: "Documents found", result });
+      } else {
+        response.status(400).send({ message: "Documents not found" });
+      }
     })
     .catch((err) => {
-      response.status(400).send({ message: "Error in finding data", err });
+      response.status(500).json(err);
     });
 });
 

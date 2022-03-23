@@ -55,7 +55,11 @@ router.route("/viewVehicle/:id").get((request, response) => {
       },
     ])
     .then((result) => {
-      response.status(200).json(result);
+      if(result.length > 0) {
+        response.status(200).send({ message: "Vehicle Profile found", result });
+      } else {
+        response.status(400).send({ message: "Vehicle Profile not found" });
+      }
     })
     .catch((err) => {
       response.status(500).json(err);

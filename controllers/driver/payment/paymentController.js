@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const Payment = require("./paymentSchema");
+const mongoose = require("mongoose");
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -14,7 +15,8 @@ router.use(bodyParser.urlencoded({ extended: true }));
     "accountNumber": "1234567",
     "accountHolderName":"Moiz-Ur-Rehman",
     "expiryDate": 2014,
-    "CVV":8765
+    "CVV":8765,
+    "driver":"5e9f8f8f8f8f8f8f8f8f8f8f",
     }
 */
 router.route("/addPayment").post((request, response) => {
@@ -37,20 +39,47 @@ router.route("/addPayment").post((request, response) => {
 
 router.route("/viewPayment/:id").get((request, response) => {
   let id = request.params.id;
-  Payment.findById(id).then((result) => {
-    if (result) {
-      response.status(200).send({ message: "Payment Details found", result });
-    } else {
-      response.status(400).send({ message: "Payment Details not found" });
-    }
-  });
+  Payment.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $lookup: {
+        from: "driverprofiles",
+        localField: "driver",
+        foreignField: "_id",
+        as: "driver",
+      },
+    },
+  ])
+    .then((result) => {
+      if (result.length > 0) {
+        response.status(200).send({ message: "Payment Details found", result });
+      } else {
+        response.status(400).send({ message: "Payment Details not found" });
+      }
+    })
+    .catch((err) => {
+      response.status(500).json(err);
+    });
 });
 
-////////////////// View all vehicles //////////////////
+////////////////// View all payments //////////////////
 // https://localhost:4000/payment/viewPayment
 
 router.route("/viewPayment").get((request, response) => {
-  Payment.find().then((result) => {
+  Payment.aggregate([
+    {
+      $lookup: {
+        from: "driverprofiles",
+        localField: "driver",
+        foreignField: "_id",
+        as: "driver",
+      },
+    },
+  ]).then((result) => {
     if (result) {
       response.status(200).send({ message: "Payment Details found", result });
     } else {

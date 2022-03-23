@@ -6,6 +6,7 @@ const driverPaymentSchema = new mongoose.Schema({
   accountHolderName: { type: String, required: true },
   expiryDate: { type: String, required: true },
   CVV: { type: Number, required: true },
+  driver: { type: mongoose.Schema.Types.ObjectId, ref: "driverProfile" },
 });
 
 module.exports=mongoose.model("driverPayment", driverPaymentSchema);
