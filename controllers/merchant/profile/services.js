@@ -1,29 +1,10 @@
 const Merchant = require("./profileSchema");
 const { removeImage } = require("../../../middleware/multer");
 
-// Add Merchant
-async function createMerchant(merchant) {
-  return await merchant
-    .save()
-    .then((result) => {
-      return { message: "Merchant profile saved", result };
-    })
-    .catch((err) => {
-      return { message: "Error in saving data", statusCode: 400, err };
-    });
-}
-async function saveMerchant(data) {
-  let MerchantData = new Merchant(data);
-  var a = await createMerchant(MerchantData);
-  if (a.statusCode === 400) {
-    removeImage("uploads/merchant/" + request.file.filename);
-  }
-  return a;
-}
 
 // Check phone number
-async function checkPhoneNo(phoneNumber) {
-  return await Merchant.findOne({ phoneNumber: phoneNumber })
+async function checkPhoneNo(data) {
+  return await Merchant.findOne({ phoneNumber: data.phoneNumber })
     .then((result) => {
       if (result) {
         return { message: "Phone number already exists", result };
@@ -137,7 +118,6 @@ async function deleteMerchant(reqID) {
 }
 
 module.exports = {
-  saveMerchant,
   viewMerchant,
   updateMerchant,
   deleteMerchant,

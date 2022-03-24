@@ -2,7 +2,11 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const profileService = require("./services");
-const { upload, moveIMage, removeImage } = require("../../../middleware/multer");
+const {
+  upload,
+  moveIMage,
+  removeImage,
+} = require("../../../middleware/multer");
 const Merchant = require("./profileSchema");
 
 router.use(bodyParser.json());
@@ -19,9 +23,21 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.route("/checkPhoneNo").post((request, response) => {
   let data = { ...request.body };
   profileService
-    .checkPhoneNo(data.phoneNumber)
+    .checkPhoneNo(data)
     .then((result) => {
-      response.status(result.statusCode || 200).json(result);
+      if (result.statusCode === 400) {
+        let merchantData = new Merchant(data);
+        merchantData
+          .save()
+          .then((result) => {
+            response.status(200).send({ message: "data added", result });
+          })
+          .catch((err) => {
+            response.status(400).send({message: "Error in adding data",err});
+          });
+      } else {
+        response.status(200).json(result);
+      }
     })
     .catch((err) => {
       response.status(500).json({
@@ -75,7 +91,7 @@ router.route("/updateMerchant/:id").put((request, response) => {
         error: err,
       });
     } else {
-      let data = {...request.body};
+      let data = { ...request.body };
       if (request.file) {
         moveIMage(
           request.file.path,
@@ -85,7 +101,7 @@ router.route("/updateMerchant/:id").put((request, response) => {
       }
       Merchant.findByIdAndUpdate(request.params.id, data)
         .then((result) => {
-          response.status(200).json(result);
+          response.status(200).json({message: "Data updated",result});
         })
         .catch((err) => {
           removeImage("uploads/merchant/" + request.file.filename);
@@ -94,7 +110,6 @@ router.route("/updateMerchant/:id").put((request, response) => {
     }
   });
 });
-        
 
 ///////////// Delete Merchant Profile //////////////
 // https://localhost:4000/merchant/deleteMerchant/62332afded01b903d423e024

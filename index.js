@@ -23,13 +23,14 @@ const acceptRejectController = require("./controllers/order/acceptReject/acceptR
 const cancelOrder = require("./controllers/order/cancelOrder/cancelController");
 const orderScreenShotController = require("./controllers/order/orderSS/orderSSController");
 const ownerController = require("./controllers/driver/owner/ownerController");
+const trackOrderController = require("./controllers/order/trackOrder/trackOrderController");
 
 //Routes
 app.use("/driver", driverProfileController,driverDocumentsController,);
 app.use("/merchant", merchantProfileController);
 app.use("/vehicle", vehicleController);
 app.use("/payment", paymentController);
-app.use('/order', orderController,bidController,acceptRejectController,cancelOrder,orderScreenShotController);
+app.use('/order', orderController,bidController,acceptRejectController,cancelOrder,orderScreenShotController,trackOrderController);
 app.use("/driver/owner", ownerController);
 
 app.listen(port, () => {
