@@ -126,6 +126,7 @@ router.route("/updateDriverDocuments/:id").put((request, response) => {
         data.vehicleOwnership = uploadPath + element.filename;
       }
     });
+    console.log(data);
     Documents.findByIdAndUpdate(request.params.id, data)
       .then((result) => {
         // remove old images

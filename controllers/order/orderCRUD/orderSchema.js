@@ -12,8 +12,9 @@ const orderSchema = new mongoose.Schema({
   driverNotes: { type: String, required: true },
   payRecieve: { type: String, required: true },
   senderReciepient: { type: String, required: true },
-  status: { type: String, required: true },
+  status: { type: String, default: "pending" },
   merchant: { type: mongoose.Schema.Types.ObjectId, ref: "merchantProfile" },
+  orderImages: { type: Array },
 });
 
 module.exports=mongoose.model("order", orderSchema);

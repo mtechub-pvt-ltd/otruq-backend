@@ -2,6 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const Order = require("./orderSchema");
+const mongoose = require("mongoose");
+const {
+  upload,
+  moveIMage,
+  removeImage,
+} = require("../../../middleware/multer");
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -20,7 +26,6 @@ router.use(bodyParser.urlencoded({ extended: true }));
     "driverNotes": "good",
     "payRecieve": "pay",
     "senderReciepient": "sender",
-    "status": "pending"
 }
 */
 router.route("/createOrder").post((request, response) => {
@@ -95,18 +100,47 @@ router.route("/getOrder").get((request, response) => {
 });
 
 ////////////// update order //////////////
-// localhost:4000/order/updateOrder/id
-
+/* localhost:4000/order/updateOrder/id
+{
+  "status":"completed"
+}
+*/
 router.route("/updateOrder/:id").put((request, response) => {
-  let id = request.params.id;
-  let data = request.body;
-  Order.findByIdAndUpdate(id, data, { new: true })
-    .then((result) => {
-      response.status(200).send({ message: "Order updated", result });
-    })
-    .catch((err) => {
-      response.status(400).send({ message: "Error in updating order", err });
+  upload.any()(request, response, (err) => {
+    if (err) {
+      console.log(err);
+      response.status(500).json({
+        message: "Error in uploading image",
+        error: err,
+      });
+    }
+    const uploadPath = "uploads/order/createOrder/";
+    let data = {
+      orderImages: [],
+    };
+    request.files.forEach((element, index) => {
+      moveIMage(element.path, uploadPath + element.filename);
+      data.orderImages[index] = uploadPath + element.filename;
     });
+    Order.findByIdAndUpdate(request.params.id, data, { new: true })
+      .then((result) => {
+        if (result) {
+          response.status(200).send({ message: "Order Updated", result });
+        } else {
+          request.files.forEach((element) => {
+            removeImage(uploadPath + element.filename);
+          });
+          response.status(400).send({ message: "Order not found", result });
+        }
+      })
+      .catch((err) => {
+        // remove uploaded images if error
+        request.files.forEach((element) => {
+          removeImage(uploadPath + element.filename);
+        });
+        response.status(400).send({ message: "Error in updating data", err });
+      });
+  });
 });
 
 ///////////// delete order //////////////

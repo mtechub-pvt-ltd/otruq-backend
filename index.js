@@ -24,6 +24,7 @@ const cancelOrder = require("./controllers/order/cancelOrder/cancelController");
 const orderScreenShotController = require("./controllers/order/orderSS/orderSSController");
 const ownerController = require("./controllers/driver/owner/ownerController");
 const trackOrderController = require("./controllers/order/trackOrder/trackOrderController");
+const orderDetailsController = require("./controllers/admin/order/orderDetailsController")
 
 //Routes
 app.use("/driver", driverProfileController,driverDocumentsController,);
@@ -32,6 +33,7 @@ app.use("/vehicle", vehicleController);
 app.use("/payment", paymentController);
 app.use('/order', orderController,bidController,acceptRejectController,cancelOrder,orderScreenShotController,trackOrderController);
 app.use("/driver/owner", ownerController);
+app.use("/admin",orderDetailsController)
 
 app.listen(port, () => {
     console.log(`Server is running Fine on port ${port}`);
