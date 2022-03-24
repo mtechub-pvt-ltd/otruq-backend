@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const profileService = require("./services");
-const { upload, moveIMage } = require("../../../middleware/multer");
+const { upload, moveIMage, removeImage } = require("../../../middleware/multer");
 const Merchant = require("./profileSchema");
 
 router.use(bodyParser.json());
@@ -88,6 +88,7 @@ router.route("/updateMerchant/:id").put((request, response) => {
           response.status(200).json(result);
         })
         .catch((err) => {
+          removeImage("uploads/merchant/" + request.file.filename);
           response.status(400).json(err);
         });
     }

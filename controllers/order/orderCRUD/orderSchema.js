@@ -13,6 +13,7 @@ const orderSchema = new mongoose.Schema({
   payRecieve: { type: String, required: true },
   senderReciepient: { type: String, required: true },
   status: { type: String, required: true },
+  merchant: { type: mongoose.Schema.Types.ObjectId, ref: "merchantProfile" },
 });
 
 module.exports=mongoose.model("order", orderSchema);

@@ -32,9 +32,7 @@ router.route("/createOrder").post((request, response) => {
       response.status(200).send({ message: "Order Created", result });
     })
     .catch((err) => {
-      response
-        .status(400)
-        .send({ message: "Error in creating order", err });
+      response.status(400).send({ message: "Error in creating order", err });
     });
 });
 
@@ -42,43 +40,86 @@ router.route("/createOrder").post((request, response) => {
 // localhost:4000/order/getOrder/id
 
 router.route("/getOrder/:id").get((request, response) => {
-    let id = request.params.id;
-    Order.findById(id)
-        .then((result) => {
-            response.status(200).send({ message: "Order found", result });
-        })
-        .catch((err) => {
-            response.status(400).send({ message: "Error in finding order", err });
-        });
+  let id = request.params.id;
+  Order.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $lookup: {
+        from: "merchantprofiles",
+        localField: "merchant",
+        foreignField: "_id",
+        as: "merchant",
+      },
+    },
+  ])
+    .then((result) => {
+      if (result.length > 0) {
+        response.status(200).send({ message: "Order found", result });
+      } else {
+        response.status(400).send({ message: "Order not found", result });
+      }
+    })
+    .catch((err) => {
+      response.status(400).send({ message: "Error in getting order", err });
+    });
 });
 
 //////////// Get all orders //////////////
 // localhost:4000/order/getOrder
 
 router.route("/getOrder").get((request, response) => {
-    Order.find()
-        .then((result) => {
-            response.status(200).send({ message: "All orders found", result });
-        })
-        .catch((err) => {
-            response.status(400).send({ message: "Error in finding all orders", err });
-        });
+  Order.aggregate([
+    {
+      $lookup: {
+        from: "merchantprofiles",
+        localField: "merchant",
+        foreignField: "_id",
+        as: "merchant",
+      },
+    },
+  ])
+    .then((result) => {
+      if (result.length > 0) {
+        response.status(200).send({ message: "Orders Fetched", result });
+      } else {
+        response.status(200).send({ message: "No orders found", result });
+      }
+    })
+    .catch((err) => {
+      response.status(400).send({ message: "Error in fetching orders", err });
+    });
 });
 
 ////////////// update order //////////////
 // localhost:4000/order/updateOrder/id
 
 router.route("/updateOrder/:id").put((request, response) => {
-    let id = request.params.id;
-    let data = request.body;
-    Order.findByIdAndUpdate(id, data, { new: true })
-        .then((result) => {
-            response.status(200).send({ message: "Order updated", result });
-        })
-        .catch((err) => {
-            response.status(400).send({ message: "Error in updating order", err });
-        });
+  let id = request.params.id;
+  let data = request.body;
+  Order.findByIdAndUpdate(id, data, { new: true })
+    .then((result) => {
+      response.status(200).send({ message: "Order updated", result });
+    })
+    .catch((err) => {
+      response.status(400).send({ message: "Error in updating order", err });
+    });
 });
 
+///////////// delete order //////////////
+// localhost:4000/order/deleteOrder/id
+router.route("/deleteOrder/:id").delete((request, response) => {
+  let id = request.params.id;
+  Order.findByIdAndDelete(id)
+    .then((result) => {
+      response.status(200).send({ message: "Order deleted", result });
+    })
+    .catch((err) => {
+      response.status(400).send({ message: "Error in deleting order", err });
+    });
+});
 
 module.exports = router;
