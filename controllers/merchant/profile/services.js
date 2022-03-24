@@ -1,5 +1,5 @@
 const Merchant = require("./profileSchema");
-const {removeImage} = require("../../../middleware/multer");
+const { removeImage } = require("../../../middleware/multer");
 
 // Add Merchant
 async function createMerchant(merchant) {
@@ -16,9 +16,28 @@ async function saveMerchant(data) {
   let MerchantData = new Merchant(data);
   var a = await createMerchant(MerchantData);
   if (a.statusCode === 400) {
-    removeImage("uploads/merchant/" + request.file.filename)
+    removeImage("uploads/merchant/" + request.file.filename);
   }
   return a;
+}
+
+// Check phone number
+async function checkPhoneNo(phoneNumber) {
+  return await Merchant.findOne({ phoneNumber: phoneNumber })
+    .then((result) => {
+      if (result) {
+        return { message: "Phone number already exists", result };
+      } else {
+        return { message: "Phone number not found", statusCode: 400, result };
+      }
+    })
+    .catch((err) => {
+      return {
+        message: "Error in checking phone number",
+        statusCode: 400,
+        err,
+      };
+    });
 }
 
 // View all Merchants
@@ -80,9 +99,12 @@ async function updateMerchant(MerchantData, id) {
     var a = await modifyMerchant(MerchantData, id);
     if (a.statusCode === 400) {
       removeImage(MerchantData.profileImage);
-    } else if(MerchantData.profileImage && MerchantData.profileImage != res.result.profileImage) {
-        removeImage(res.result.profileImage);
-      }
+    } else if (
+      MerchantData.profileImage &&
+      MerchantData.profileImage != res.result.profileImage
+    ) {
+      removeImage(res.result.profileImage);
+    }
     return a;
   }
 }
@@ -120,4 +142,5 @@ module.exports = {
   updateMerchant,
   deleteMerchant,
   viewSpecificMerchant,
+  checkPhoneNo,
 };

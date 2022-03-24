@@ -12,6 +12,7 @@ const merchantProfileSchema = new mongoose.Schema(
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     homeAddress: { type: String, required: true },
+    phoneNumber: { type: String },
     profileImage: { type: String },
   },
   {

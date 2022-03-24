@@ -10,24 +10,24 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 ///////////// Add Merchant Profile//////////////
 /*
-  https://localhost:4000/merchant/addMerchant
+  https://localhost:4000/merchant/checkPhoneNo
   {
-    "firstName": "Rajesh",
-    "email": "testing123@gmail.com",
-    "lastName": "Raj",
-    "homeAddress": "kolkata, India"
+    "phoneNumber": "03435995776"
   }
 */
 
-router.route("/addMerchant").post((request, response) => {
-  let data = request.body;
+router.route("/checkPhoneNo").post((request, response) => {
+  let data = { ...request.body };
   profileService
-    .saveMerchant(data)
+    .checkPhoneNo(data.phoneNumber)
     .then((result) => {
       response.status(result.statusCode || 200).json(result);
     })
     .catch((err) => {
-      response.status(400).json(err);
+      response.status(500).json({
+        message: "Error in checking phone number",
+        error: err,
+      });
     });
 });
 

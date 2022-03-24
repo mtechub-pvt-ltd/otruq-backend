@@ -2,7 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const orderSSSchema = require("./orderSSSchema");
-const mongoose = require("mongoose");
 const {
   upload,
   moveIMage,
