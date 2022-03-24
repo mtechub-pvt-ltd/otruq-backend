@@ -33,7 +33,7 @@ router.route("/checkPhoneNo").post((request, response) => {
             response.status(200).send({ message: "data added", result });
           })
           .catch((err) => {
-            response.status(400).send({message: "Error in adding data",err});
+            response.status(400).send({ message: "Error in adding data", err });
           });
       } else {
         response.status(200).json(result);
@@ -101,11 +101,11 @@ router.route("/updateMerchant/:id").put((request, response) => {
       }
       Merchant.findByIdAndUpdate(request.params.id, data)
         .then((result) => {
-          response.status(200).json({message: "Data updated",result});
+          response.status(200).json({ message: "Data updated", result });
         })
         .catch((err) => {
           removeImage("uploads/merchant/" + request.file.filename);
-          response.status(400).json(err);
+          response.status(400).json({ message: "Error in updating", err });
         });
     }
   });

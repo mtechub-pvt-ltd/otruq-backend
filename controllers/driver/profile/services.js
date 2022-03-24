@@ -55,7 +55,7 @@ async function viewDrivers() {
 
 // Update Driver
 async function modifyDriver(driver, id) {
-  return await Driver.updateOne({ _id: id }, { $set: driver })
+  return await Driver.updateOne({ _id: id }, { $set: driver },{new:true})
     .then((result) => {
       return { message: "Driver Updated Successfully", result };
     })

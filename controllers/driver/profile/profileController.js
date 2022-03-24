@@ -84,10 +84,14 @@ router.route("/updateDriver/:id").put((request, response) => {
       }
       Driver.findByIdAndUpdate(request.params.id, data)
         .then((result) => {
-          response.status(result.statusCode || 200).json(result);
+          response
+            .status(result.statusCode || 200)
+            .json({ message: "Driver Profile Updated Successfully", result });
         })
         .catch((err) => {
-          response.status(400).json(err);
+          response
+            .status(400)
+            .json({ message: "Error in updating profile", err });
         });
     }
   });
