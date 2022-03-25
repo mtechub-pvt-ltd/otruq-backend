@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const Bid = require("./bidSchema");
+const mongoose = require("mongoose");
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -56,5 +57,35 @@ router.route("/getBid").get((request, response) => {
     });
 });
 
+/////// Get specific order bids //////////////
+// localhost:4000/order/getBidsOrder/orderid
+router.route("/getBidsOrder/:id").get((request, response) => {
+  let id = request.params.id;
+  Bid.aggregate([
+    {
+      $match: {
+        order: mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $lookup: {
+        from: "driverprofiles",
+        localField: "driver",
+        foreignField: "_id",
+        as: "driver",
+      },
+    },
+  ])
+    .then((result) => {
+      if (result.length > 0) {
+        response.status(200).send({ message: "Bids found", result });
+      } else {
+        response.status(400).send({ message: "Bids not found", result });
+      }
+    })
+    .catch((err) => {
+      response.status(400).send({ message: "Error in fetching bids", err });
+    });
+});
 
 module.exports = router;
