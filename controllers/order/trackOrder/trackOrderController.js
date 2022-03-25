@@ -55,6 +55,34 @@ router.route("/getTrackOrder/:id").get((request, response) => {
     });
 });
 
+////////////////////// Get Specific Drivers Orders //////////////////////
+// https://localhost:4000/order/getDriverOrders/driverID
+router.route("/getDriverOrders/:id").get((request, response) => {
+  let id = request.params.id;
+  trackOrderSchema
+    .aggregate([
+      {
+        $match: {
+          driver: mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "orders",
+          localField: "order",
+          foreignField: "_id",
+          as: "order",
+        },
+      },
+    ])
+    .then((result) => {
+      response.status(200).json({ message: "Your Orders found", result });
+    })
+    .catch((err) => {
+      response.status(400).json({ message: "You have no orders", err });
+    });
+});
+
 ///////////////////// Get All Track Order //////////////////////
 // localhost:4000/order/trackOrder/getTrackOrders
 router.route("/gettrackOrders").get((request, response) => {
