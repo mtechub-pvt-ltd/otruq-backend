@@ -3,8 +3,14 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema({
   service: { type: String, required: true },
   vehicleType: { type: String, required: true },
-  pickupLocation: { type: String, required: true },
-  dropoffLocation: { type: String, required: true },
+  pickupLocation: { 
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+   },
+  dropoffLocation: {
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+  },
   shippingPrice: { type: Number, required: true },
   recievingTime: { type: String, required: true },
   senderWhatsapp: { type: String, required: true },

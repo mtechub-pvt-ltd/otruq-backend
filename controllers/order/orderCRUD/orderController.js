@@ -73,6 +73,23 @@ router.route("/getOrder/:id").get((request, response) => {
     });
 });
 
+//////////// Get Specific Merchants All Orders //////////////
+// localhost:4000/order/getMerchantOrders/id
+router.route("/getMerchantOrders/:id").get((request, response) => {
+  let id = request.params.id;
+  Order.find({ merchant: id })
+    .then((result) => {
+      if (result.length > 0) {
+        response.status(200).send({ message: "Order found", result });
+      } else {
+        response.status(400).send({ message: "Order not found", result });
+      }
+    })
+    .catch((err) => {
+      response.status(400).send({ message: "Error in getting order", err });
+    });
+});
+
 //////////// Get all orders //////////////
 // localhost:4000/order/getOrder
 
@@ -122,7 +139,7 @@ router.route("/updateOrder/:id").put((request, response) => {
       moveIMage(element.path, uploadPath + element.filename);
       data.orderImages[index] = uploadPath + element.filename;
     });
-    Order.findByIdAndUpdate(request.params.id, data, { new: true })
+    Order.findByIdAndUpdate(request.params.id, data)
       .then((result) => {
         if (result) {
           response.status(200).send({ message: "Order Updated", result });
@@ -156,4 +173,59 @@ router.route("/deleteOrder/:id").delete((request, response) => {
     });
 });
 
+// calculate order radius
+function calcCrow(lat1, lon1, lat2, lon2) {
+  var R = 6371; // km
+  var dLat = toRad(lat2 - lat1);
+  var dLon = toRad(lon2 - lon1);
+  var lat1 = toRad(lat1);
+  var lat2 = toRad(lat2);
+
+  var a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c;
+  return d;
+}
+
+// Converts numeric degrees to radians
+function toRad(Value) {
+  return (Value * Math.PI) / 180;
+}
+
+router.route("/getOrderByRadius").post(async (request, response) => {
+  let data = request.body;
+  let driverLat = data.driverLat;
+  let driverLng = data.driverLng;
+  //let res = calcCrow(59.3293371, 13.4877472, 59.3225525, 13.4619422).toFixed(1);
+  // getting those orders which are pending
+  let pendingOrders = await Order.find({
+    status: "pending",
+  })
+    .then((result) => {
+      return result;
+    })
+    .catch((err) => {
+      response
+        .status(400)
+        .send({ message: "Error in calculating radius", err });
+    });
+  // getting those orders which are in radius
+  let orders = pendingOrders.filter((order) => {
+    let orderLat = order.pickupLocation.lat;
+    let orderLng = order.pickupLocation.lng;
+    let distance = calcCrow(driverLat, driverLng, orderLat, orderLng).toFixed(
+      1
+    );
+    if (distance <= 5) {
+      return order;
+    }
+  });
+  if (orders.length > 0) {
+    response.status(200).send({ message: "Orders found", orders });
+  } else {
+    response.status(400).send({ message: "No orders found", orders });
+  }
+});
 module.exports = router;
