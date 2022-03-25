@@ -2,7 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const acceptRejectOrder = require("./acceptRejectSchema");
-const mongoose = require("mongoose");
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -69,51 +68,6 @@ router.route("/getAcceptReject").get((request, response) => {
     })
     .catch((err) => {
       response.status(400).send({ message: "Error in fetching orders", err });
-    });
-});
-
-router.route("/getAcceptReject/:id").get((request, response) => {
-  acceptRejectOrder
-    .aggregate([
-      {
-        $match: {
-          _id: mongoose.Types.ObjectId(request.params.id),
-        },
-      },
-      {
-        $lookup: {
-          from: "orders",
-          localField: "order",
-          foreignField: "_id",
-          as: "order",
-        },
-      },
-      {
-        $lookup: {
-          from: "driverprofiles",
-          localField: "driver",
-          foreignField: "_id",
-          as: "driver",
-        },
-      },
-      {
-        $lookup: {
-          from: "merchantprofiles",
-          localField: "merchant",
-          foreignField: "_id",
-          as: "merchant",
-        },
-      },
-    ])
-    .then((result) => {
-      if (result.length > 0) {
-        response.status(200).send({ message: "Order Fetched", result });
-      } else {
-        response.status(400).send({ message: "Order not found" });
-      }
-    })
-    .catch((err) => {
-      response.status(500).json(err);
     });
 });
 

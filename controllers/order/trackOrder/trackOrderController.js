@@ -59,29 +59,19 @@ router.route("/getTrackOrder/:id").get((request, response) => {
 // https://localhost:4000/order/getDriverOrders/driverID
 router.route("/getDriverOrders/:id").get((request, response) => {
   let id = request.params.id;
-  trackOrderSchema
-    .aggregate([
-      {
-        $match: {
-          driver: mongoose.Types.ObjectId(id),
-        },
-      },
-      {
-        $lookup: {
-          from: "orders",
-          localField: "order",
-          foreignField: "_id",
-          as: "order",
-        },
-      },
-    ])
+  getSpecificDriverOrders(id)
     .then((result) => {
-      response.status(200).json({ message: "Your Orders found", result });
+      if (result.length > 0) {
+        response.status(200).json({ message: "Orders found", result });
+      } else {
+        response.status(400).json({ message: "Orders not found", result });
+      }
     })
     .catch((err) => {
-      response.status(400).json({ message: "You have no orders", err });
+      response.status(400).json({ message: "Error in searching orders", err });
     });
 });
+
 
 ///////////////////// Get All Track Order //////////////////////
 // localhost:4000/order/trackOrder/getTrackOrders
@@ -127,5 +117,32 @@ router.route("/updateTrackOrder/:id").put((request, response) => {
       response.status(400).json({ message: "Error in updating", err });
     });
 });
+
+// Get orders of a specific driver
+async function getSpecificDriverOrders(id) {
+  let drivers = await trackOrderSchema
+    .aggregate([
+      {
+        $match: {
+          driver: mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "orders",
+          localField: "order",
+          foreignField: "_id",
+          as: "order",
+        },
+      },
+    ])
+    .then((result) => {
+      return result;
+    })
+    .catch((err) => {
+      response.status(400).json({ message: "Order Not found", err });
+    });
+  return drivers;
+}
 
 module.exports = router;
