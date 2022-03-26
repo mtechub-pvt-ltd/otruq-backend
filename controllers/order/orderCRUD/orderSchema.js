@@ -6,10 +6,12 @@ const orderSchema = new mongoose.Schema({
   pickupLocation: { 
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
+    address: { type: String },
    },
   dropoffLocation: {
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
+    address: { type: String },
   },
   shippingPrice: { type: Number, required: true },
   recievingTime: { type: String, required: true },
