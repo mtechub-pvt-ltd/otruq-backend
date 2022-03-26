@@ -21,6 +21,7 @@ const orderSchema = new mongoose.Schema({
   status: { type: String, default: "pending" },
   merchant: { type: mongoose.Schema.Types.ObjectId, ref: "merchantProfile" },
   orderImages: { type: Array },
+  OrderId: { type: Number },
 });
 
 module.exports=mongoose.model("order", orderSchema);

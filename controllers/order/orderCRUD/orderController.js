@@ -198,7 +198,6 @@ router.route("/getOrderByRadius").post(async (request, response) => {
   let data = request.body;
   let driverLat = data.driverLat;
   let driverLng = data.driverLng;
-  //let res = calcCrow(59.3293371, 13.4877472, 59.3225525, 13.4619422).toFixed(1);
   // getting those orders which are pending
   let pendingOrders = await Order.find({
     status: "pending",
