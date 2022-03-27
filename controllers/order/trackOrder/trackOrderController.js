@@ -145,4 +145,32 @@ async function getSpecificDriverOrders(id) {
   return drivers;
 }
 
+///////////// Get Specific Orders track order //////////////
+// localhost:4000/order/getSpecificOrderTracking/orderID
+router.route("/getSpecificOrderTracking/:id").get((request, response) => {
+  let id = request.params.id;
+  trackOrderSchema
+    .aggregate([
+      {
+        $match: {
+          order: mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "driverprofiles",
+          localField: "driver",
+          foreignField: "_id",
+          as: "driver",
+        },
+      },
+    ])
+    .then((result) => {
+      response.status(200).json({ message: "found", result });
+    })
+    .catch((err) => {
+      response.status(400).json({ message: "Not found", err });
+    });
+});
+
 module.exports = router;
