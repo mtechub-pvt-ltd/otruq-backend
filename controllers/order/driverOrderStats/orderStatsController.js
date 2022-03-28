@@ -23,12 +23,15 @@ async function getDriverAcceptReject(driverId) {
       if (result.length > 0) {
         return result;
       } else {
-        response.status(400).send({ message: "Order not found" });
+        return { message: "Order not found", statusCode: 400 };
       }
     })
     .catch((err) => {
-      response.status(500).json(err);
+      return { message: "Error", statusCode: 500, err };
     });
+  if (drivers.statusCode == 400 || drivers.statusCode == 500) {
+    return drivers;
+  }
   let rejectedOrders = drivers.filter((item, index) => {
     if (item.status == "pending") {
       return item;
@@ -58,8 +61,11 @@ async function getDeliveredOrders(id) {
       return result;
     })
     .catch((err) => {
-      response.status(400).json({ message: "Order Not found", err });
+      return { message: "Order not found", statusCode: 500, err };
     });
+  if (drivers.statusCode == 400 || drivers.statusCode == 500) {
+    return drivers;
+  }
   let totalOrders = drivers.length;
   let deliveredOrders = drivers.filter((item) => {
     if (item.order[0].status == "delivered") {
@@ -72,7 +78,7 @@ async function getDeliveredOrders(id) {
   };
   return data;
 }
-router.route("/calDriverOrderStats").post(async (request, response) => {
+router.route("/calDriverOrderStats").put(async (request, response) => {
   let id = request.body.driver;
   let rejectedOrders = await getDriverAcceptReject(id)
     .then((rejectedOrders) => {
@@ -94,8 +100,9 @@ router.route("/calDriverOrderStats").post(async (request, response) => {
     orderRejection: rejectedOrders,
     driver: id,
   };
-  let OrderStatsData = new orderStatsSchema(data);
-  OrderStatsData.save()
+  //let OrderStatsData = new orderStatsSchema(data);
+  orderStatsSchema
+    .findOneAndUpdate({ driver: id }, data, { new: true })
     .then((result) => {
       response
         .status(200)
@@ -123,7 +130,25 @@ router.route("/getDriverOrderStats/:id").get(async (request, response) => {
     .catch((err) => {
       response.status(400).json({ message: "Error in calculating", err });
     });
-  response.status(200).json({ message: "Stats calculated", result });
+  if (result.length > 0) {
+    response.status(200).json({ message: "Stats calculated", result });
+  } else {
+    response.status(400).json({ message: "Stats not calculated", result });
+  }
+});
+
+////////// Create new stats of a driver //////////
+router.route("/createDriverOrderStats").post(async (request, response) => {
+  let data = request.body;
+  let OrderStatsData = new orderStatsSchema(data);
+  OrderStatsData
+    .save()
+    .then((result) => {
+      response.status(200).json({ message: "Driver Order Stats initialized", result });
+    })
+    .catch((err) => {
+      response.status(400).json({ message: "Error in initializing", err });
+    });
 });
 
 module.exports = router;
