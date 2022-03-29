@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const acceptRejectSchema = new mongoose.Schema({
   status: { type: String, required: true },
-  order: {
+  bid: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "order",
+    ref: "bidOrder",
   },
   driver: {
     type: mongoose.Schema.Types.ObjectId,

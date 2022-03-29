@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const acceptRejectOrder = require("./acceptRejectSchema");
+const mongoose = require("mongoose");
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -68,6 +69,30 @@ router.route("/getAcceptReject").get((request, response) => {
     })
     .catch((err) => {
       response.status(400).send({ message: "Error in fetching orders", err });
+    });
+});
+
+///////////// Get specific accepted rejected order //////////////
+// localhost:4000/order/getAcceptReject/:id
+router.route("/getAcceptReject/:id").get((request, response) => {
+  let id = request.params.id;
+  acceptRejectOrder
+    .aggregate([
+      {
+        $match: {
+          bid: mongoose.Types.ObjectId(id),
+        },
+      },
+    ])
+    .then((result) => {
+      if (result.length > 0) {
+        response.status(200).send({ message: "Order Fetched", result });
+      } else {
+        response.status(400).send({ message: "Order not found", result });
+      }
+    })
+    .catch((err) => {
+      response.status(400).send({ message: "Error in fetching order", err });
     });
 });
 
