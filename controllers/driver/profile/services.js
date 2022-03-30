@@ -104,39 +104,10 @@ async function updateDriver(DriverData, id) {
   }
 }
 
-// Delete Driver
-async function delDriver(reqID) {
-  return await Driver.findByIdAndDelete({ _id: reqID })
-    .then((result) => {
-      return { message: "Driver Deleted Successfully", result };
-    })
-    .catch((err) => {
-      return {
-        message: "Error in deleting driver profile",
-        statusCode: 400,
-        err,
-      };
-    });
-}
-async function deleteDriver(reqID) {
-  let res = await viewSpecificDriver(reqID);
-  if (res.statusCode == 400) {
-    console.log(res);
-    return res;
-  } else {
-    var a = await delDriver(reqID);
-    if (a.statusCode != 400) {
-      removeImage(a.result.profileImage);
-    }
-    return a;
-  }
-}
-
 module.exports = {
   saveDriver,
   viewDrivers,
   viewSpecificDriver,
   updateDriver,
-  deleteDriver,
   checkPhoneNo,
 };

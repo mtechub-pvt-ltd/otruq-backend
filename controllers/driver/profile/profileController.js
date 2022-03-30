@@ -2,7 +2,11 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const router = express.Router();
 const profileService = require("./services");
-const { upload, moveIMage } = require("../../../middleware/multer");
+const {
+  upload,
+  moveIMage,
+  removeImage,
+} = require("../../../middleware/multer");
 const Driver = require("./profileSchema");
 
 router.use(bodyParser.json());
@@ -29,7 +33,6 @@ router.route("/addDriver").post((request, response) => {
       response.status(400).json(err);
     });
 });
-
 
 ///////////// Check phone number and Add Driver Profile//////////////
 /*
@@ -65,7 +68,6 @@ router.route("/checkPhoneNo").post((request, response) => {
       });
     });
 });
-
 
 /////////////// View Specific Driver Profile//////////////
 // https://localhost:4000/driver/viewDriver/id
@@ -138,14 +140,22 @@ router.route("/updateDriver/:id").put((request, response) => {
 // https://localhost:4000/driver/deleteDriver/62332afded01b903d423e024
 
 router.route("/deleteDriver/:id").delete((request, response) => {
-  profileService
-    .deleteDriver(request.params.id)
+  Driver.findByIdAndDelete(request.params.id)
     .then((result) => {
-      response.status(result.statusCode || 200).json(result);
+      if (result) {
+        if (result.profileImage) {
+          console.log("result.profileImage", result.profileImage);
+          removeImage(result.profileImage);
+        }
+        response
+          .status(200)
+          .json({ message: "Driver Deleted Successfully", result });
+      } else {
+        response.status(400).json({ message: "Driver not found" });
+      }
     })
     .catch((err) => {
-      console.log("err",err)
-      response.status(400).json(err);
+      response.status(400).json({ message: "Error in deleting", err });
     });
 });
 module.exports = router;

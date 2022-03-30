@@ -115,13 +115,21 @@ router.route("/updateMerchant/:id").put((request, response) => {
 // https://localhost:4000/merchant/deleteMerchant/62332afded01b903d423e024
 
 router.route("/deleteMerchant/:id").delete((request, response) => {
-  profileService
-    .deleteMerchant(request.params.id)
+  Merchant.findByIdAndDelete(request.params.id)
     .then((result) => {
-      response.status(result.statusCode || 200).json(result);
+      if (result) {
+        if (result.profileImage) {
+          removeImage(result.profileImage);
+        }
+        response
+          .status(200)
+          .json({ message: "Merchant Deleted Successfully", result });
+      } else {
+        response.status(400).json({ message: "Merchant not found" });
+      }
     })
     .catch((err) => {
-      response.status(400).json(err);
+      response.status(400).json({ message: "Error in deleting", err });
     });
 });
 module.exports = router;

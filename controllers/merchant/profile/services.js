@@ -90,37 +90,10 @@ async function updateMerchant(MerchantData, id) {
   }
 }
 
-// Delete Merchant
-async function delMerchant(reqID) {
-  return await Merchant.findByIdAndDelete({ _id: reqID })
-    .then((result) => {
-      return { message: "Merchant profile Deleted Successfully", result };
-    })
-    .catch((err) => {
-      return {
-        message: "Error in deleting merchant profile",
-        statusCode: 400,
-        err,
-      };
-    });
-}
-async function deleteMerchant(reqID) {
-  let res = await viewSpecificMerchant(reqID);
-  if (res.statusCode == 400) {
-    return res;
-  } else {
-    var a = await delMerchant(reqID);
-    if (a.statusCode != 400) {
-      removeImage(a.result.profileImage);
-    }
-    return a;
-  }
-}
 
 module.exports = {
   viewMerchant,
   updateMerchant,
-  deleteMerchant,
   viewSpecificMerchant,
   checkPhoneNo,
 };
