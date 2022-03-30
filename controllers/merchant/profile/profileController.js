@@ -99,7 +99,7 @@ router.route("/updateMerchant/:id").put((request, response) => {
         );
         data.profileImage = "uploads/merchant/" + request.file.filename;
       }
-      Merchant.findByIdAndUpdate(request.params.id, data)
+      Merchant.findByIdAndUpdate(request.params.id, data,{new:true})
         .then((result) => {
           response.status(200).json({ message: "Data updated", result });
         })

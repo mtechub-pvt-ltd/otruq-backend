@@ -1,5 +1,5 @@
 const Driver = require("./profileSchema");
-const {removeImage} = require("../../../middleware/multer");
+const { removeImage } = require("../../../middleware/multer");
 // Add Driver
 async function createDriver(driver) {
   return await driver
@@ -32,6 +32,25 @@ async function viewSpecificDriver(reqID) {
     });
 }
 
+// Check phone number
+async function checkPhoneNo(data) {
+  return await Driver.findOne({ phoneNumber: data.phoneNumber })
+    .then((result) => {
+      if (result) {
+        return { message: "Phone number already exists", result };
+      } else {
+        return { message: "Phone number not found", statusCode: 400, result };
+      }
+    })
+    .catch((err) => {
+      return {
+        message: "Error in checking phone number",
+        statusCode: 400,
+        err,
+      };
+    });
+}
+
 // View all Drivers
 async function viewData() {
   return await Driver.find()
@@ -55,7 +74,7 @@ async function viewDrivers() {
 
 // Update Driver
 async function modifyDriver(driver, id) {
-  return await Driver.updateOne({ _id: id }, { $set: driver },{new:true})
+  return await Driver.updateOne({ _id: id }, { $set: driver }, { new: true })
     .then((result) => {
       return { message: "Driver Updated Successfully", result };
     })
@@ -75,9 +94,12 @@ async function updateDriver(DriverData, id) {
     var a = await modifyDriver(DriverData, id);
     if (a.statusCode === 400) {
       removeImage(DriverData.profileImage);
-    } else if(DriverData.profileImage && DriverData.profileImage != res.result.profileImage) {
-        removeImage(res.result.profileImage);
-      }
+    } else if (
+      DriverData.profileImage &&
+      DriverData.profileImage != res.result.profileImage
+    ) {
+      removeImage(res.result.profileImage);
+    }
     return a;
   }
 }
@@ -99,6 +121,7 @@ async function delDriver(reqID) {
 async function deleteDriver(reqID) {
   let res = await viewSpecificDriver(reqID);
   if (res.statusCode == 400) {
+    console.log(res);
     return res;
   } else {
     var a = await delDriver(reqID);
@@ -115,4 +138,5 @@ module.exports = {
   viewSpecificDriver,
   updateDriver,
   deleteDriver,
+  checkPhoneNo,
 };

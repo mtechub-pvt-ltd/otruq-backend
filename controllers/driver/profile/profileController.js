@@ -30,6 +30,43 @@ router.route("/addDriver").post((request, response) => {
     });
 });
 
+
+///////////// Check phone number and Add Driver Profile//////////////
+/*
+  https://localhost:4000/driver/checkPhoneNo
+  {
+    "phoneNumber": "03435995776"
+  }
+*/
+
+router.route("/checkPhoneNo").post((request, response) => {
+  let data = { ...request.body };
+  profileService
+    .checkPhoneNo(data)
+    .then((result) => {
+      if (result.statusCode === 400) {
+        let driverData = new Driver(data);
+        driverData
+          .save()
+          .then((result) => {
+            response.status(200).send({ message: "data added", result });
+          })
+          .catch((err) => {
+            response.status(400).send({ message: "Error in adding data", err });
+          });
+      } else {
+        response.status(200).json(result);
+      }
+    })
+    .catch((err) => {
+      response.status(500).json({
+        message: "Error in checking phone number",
+        error: err,
+      });
+    });
+});
+
+
 /////////////// View Specific Driver Profile//////////////
 // https://localhost:4000/driver/viewDriver/id
 
@@ -82,7 +119,7 @@ router.route("/updateDriver/:id").put((request, response) => {
         );
         data.profileImage = "uploads/driver/profile/" + request.file.filename;
       }
-      Driver.findByIdAndUpdate(request.params.id, data)
+      Driver.findByIdAndUpdate(request.params.id, data, { new: true })
         .then((result) => {
           response
             .status(result.statusCode || 200)
@@ -107,6 +144,7 @@ router.route("/deleteDriver/:id").delete((request, response) => {
       response.status(result.statusCode || 200).json(result);
     })
     .catch((err) => {
+      console.log("err",err)
       response.status(400).json(err);
     });
 });
