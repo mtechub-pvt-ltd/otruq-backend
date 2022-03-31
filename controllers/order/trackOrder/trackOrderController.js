@@ -193,6 +193,9 @@ router.route("/getSpecificOrderTracking/:id").get((request, response) => {
           as: "driver",
         },
       },
+      {
+        $unwind: "$driver",
+      }
     ])
     .then((result) => {
       response.status(200).json({ message: "found", result });
