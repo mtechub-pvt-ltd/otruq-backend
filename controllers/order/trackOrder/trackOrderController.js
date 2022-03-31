@@ -72,7 +72,6 @@ router.route("/getDriverOrders/:id").get((request, response) => {
     });
 });
 
-
 ///////////////////// Get All Track Order //////////////////////
 // localhost:4000/order/trackOrder/getTrackOrders
 router.route("/gettrackOrders").get((request, response) => {
@@ -111,7 +110,11 @@ router.route("/updateTrackOrder/:id").put((request, response) => {
   trackOrderSchema
     .findByIdAndUpdate(id, data, { new: true })
     .then((result) => {
-      response.status(200).json({ message: "Updated succesfully", result });
+      if (result) {
+        response.status(200).json({ message: "Updated succesfully", result });
+      } else {
+        response.status(400).json({ message: "Could not update", result });
+      }
     })
     .catch((err) => {
       response.status(400).json({ message: "Error in updating", err });
