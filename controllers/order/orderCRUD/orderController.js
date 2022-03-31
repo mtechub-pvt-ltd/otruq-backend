@@ -132,14 +132,17 @@ router.route("/updateOrder/:id").put((request, response) => {
       });
     }
     const uploadPath = "uploads/order/createOrder/";
-    let data = {
-      orderImages: [],
-    };
-    request.files.forEach((element, index) => {
-      moveIMage(element.path, uploadPath + element.filename);
-      data.orderImages[index] = uploadPath + element.filename;
-    });
-    Order.findByIdAndUpdate(request.params.id, data)
+    let data=request.body;
+    if (request.files) {
+      data = {
+        orderImages: [],
+      };
+      request.files.forEach((element, index) => {
+        moveIMage(element.path, uploadPath + element.filename);
+        data.orderImages[index] = uploadPath + element.filename;
+      });
+    }
+    Order.findByIdAndUpdate(request.params.id, data, { new: true })
       .then((result) => {
         if (result) {
           response.status(200).send({ message: "Order Updated", result });
