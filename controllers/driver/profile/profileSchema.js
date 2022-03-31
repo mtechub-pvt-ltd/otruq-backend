@@ -13,8 +13,8 @@ const driverProfileSchema = new mongoose.Schema(
     homeAddress: { type: String },
     phoneNumber: { type: String },
     location: {
-      lat: { type: string },
-      lng: { type: string },
+      lat: { type: String },
+      lng: { type: String },
     },
     profileImage: { type: String },
   },
