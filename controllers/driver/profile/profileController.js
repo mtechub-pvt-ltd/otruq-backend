@@ -138,6 +138,22 @@ router.route("/updateDriver/:id").put((request, response) => {
   });
 });
 
+
+// localhost:4000/driver/driverLocation/id
+router.route("/driverLocation/:id").put((request, response) => {
+  let data = request.body;
+  Driver.findByIdAndUpdate(request.params.id, data, { new: true })
+    .then((result) => {
+      response
+        .status(200)
+        .json({ message: "Driver Location Updated Successfully", result });
+    })
+    .catch((err) => {
+      response.status(400).json({ message: "Error in updating location", err });
+    });
+});
+
+
 ///////////// Delete Driver Profile //////////////
 // https://localhost:4000/driver/deleteDriver/62332afded01b903d423e024
 
