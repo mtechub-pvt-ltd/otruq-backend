@@ -154,6 +154,7 @@ async function getSpecificDriverOrders(id) {
           shipmentDelivered: 1,
           "order._id": 1,
           "order.status": 1,
+          "order.vehicleType": 1,
           "order.pickupLocation.address": 1,
           "order.dropoffLocation.address": 1,
           "order.shippingPrice": 1,
