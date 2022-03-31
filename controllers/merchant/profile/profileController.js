@@ -47,6 +47,30 @@ router.route("/checkPhoneNo").post((request, response) => {
     });
 });
 
+///////////// Add Merchant //////////////
+/*
+  https://localhost:4000/merchant/addmerchant
+  {
+    "firsName": "Rajesh",
+    "email": "testing123@gmail.com",
+    "lastName": "Raj",
+    "homeAddress": "kolkata, India",
+    "phoneNumber": "03435995776",
+  }
+*/
+router.route("/addMerchant").post((request, response) => {
+  let data = request.body;
+  let merchantData = new Merchant(data);
+  merchantData
+    .save()
+    .then((result) => {
+      response.status(200).send({ message: "data added", result });
+    })
+    .catch((err) => {
+      response.status(400).send({ message: "Error in adding data", err });
+    });
+});
+
 /////////////// View Specific Merchant Profile//////////////
 // https://localhost:4000/merchant/viewMerchant/id
 
@@ -99,7 +123,7 @@ router.route("/updateMerchant/:id").put((request, response) => {
         );
         data.profileImage = "uploads/merchant/" + request.file.filename;
       }
-      Merchant.findByIdAndUpdate(request.params.id, data,{new:true})
+      Merchant.findByIdAndUpdate(request.params.id, data, { new: true })
         .then((result) => {
           response.status(200).json({ message: "Data updated", result });
         })

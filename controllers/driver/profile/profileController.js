@@ -27,7 +27,9 @@ router.route("/addDriver").post((request, response) => {
   profileService
     .saveDriver(data)
     .then((result) => {
-      response.status(result.statusCode || 200).json(result);
+      response
+        .status(result.statusCode || 200)
+        .json({ message: "Driver added successfully", result });
     })
     .catch((err) => {
       response.status(400).json(err);

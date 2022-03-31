@@ -75,6 +75,7 @@ router.route("/getBidsOrder/:id").get((request, response) => {
         as: "driver",
       },
     },
+    { $unwind: "$driver" },
   ])
     .then((result) => {
       if (result.length > 0) {
