@@ -48,10 +48,14 @@ router.route("/getTrackOrder/:id").get((request, response) => {
       },
     ])
     .then((result) => {
-      response.status(200).json({ message: "found", result });
+      if (result) {
+        response.status(200).json({ message: "found", result });
+      } else {
+        response.status(400).json({ message: "not found" });
+      }
     })
     .catch((err) => {
-      response.status(400).json({ message: "Not found", err });
+      response.status(400).json({ message: "Error in fetching", err });
     });
 });
 
@@ -136,6 +140,27 @@ async function getSpecificDriverOrders(id) {
           localField: "order",
           foreignField: "_id",
           as: "order",
+        },
+      },
+      {
+        $unwind: "$order",
+      },
+      {
+        $project: {
+          _id: 1,
+          shipmentStarted: 1,
+          receiptArrived: 1,
+          shipmentRecieved: 1,
+          shipmentDelivered: 1,
+          "order._id": 1,
+          "order.status": 1,
+          "order.pickupLocation.address": 1,
+          "order.dropoffLocation.address": 1,
+          "order.shippingPrice": 1,
+          "order.recievingTime": 1,
+          "order.driverNotes": 1,
+          "order.merchant": 1,
+          "order.OrderId": 1,
         },
       },
     ])
