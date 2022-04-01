@@ -79,13 +79,17 @@ router.route("/viewPayment").get((request, response) => {
         as: "driver",
       },
     },
-  ]).then((result) => {
-    if (result) {
-      response.status(200).send({ message: "Payment Details found", result });
-    } else {
-      response.status(400).send({ message: "Payment Details not found" });
-    }
-  });
+  ])
+    .then((result) => {
+      if (result.length > 0) {
+        response.status(200).send({ message: "Payment Details found", result });
+      } else {
+        response.status(400).send({ message: "Payment Details not found" });
+      }
+    })
+    .catch((err) => {
+      response.status(500).json({ message: "Error in fetching", err });
+    });
 });
 
 ///////////// Update Payment Details //////////////
@@ -103,13 +107,40 @@ router.route("/viewPayment").get((request, response) => {
 router.route("/updatePayment/:id").put((request, response) => {
   let id = request.params.id;
   let data = request.body;
-  Payment.findByIdAndUpdate(id, data).then((result) => {
-    if (result) {
-      response.status(200).send({ message: "Payment Details updated", result });
-    } else {
-      response.status(400).send({ message: "Payment Details not found" });
-    }
-  });
+  Payment.findByIdAndUpdate(id, data)
+    .then((result) => {
+      if (result) {
+        response
+          .status(200)
+          .send({ message: "Payment Details updated", result });
+      } else {
+        response.status(400).send({ message: "Payment Details not found" });
+      }
+    })
+    .catch((err) => {
+      response.status(500).json({ message: "Error in updating", err });
+    });
+});
+
+///////////// Update Specific Driver Payment Details //////////////
+// https://localhost:4000/payment/updateDriverPayment/driverId
+
+router.route("/updateDriverPayment/:id").put((request, response) => {
+  let id = request.params.id;
+  let data = request.body;
+  Payment.findOneAndUpdate({ driver: id }, data, { new: true })
+    .then((result) => {
+      if (result) {
+        response
+          .status(200)
+          .send({ message: "Driver Payment Details updated", result });
+      } else {
+        response.status(400).send({ message: "Payment Details not found" });
+      }
+    })
+    .catch((err) => {
+      response.status(500).json({ message: "Error in updating", err });
+    });
 });
 
 ///////////// Delete Payment Details //////////////
@@ -125,4 +156,5 @@ router.route("/deletePayment/:id").delete((request, response) => {
     }
   });
 });
+
 module.exports = router;

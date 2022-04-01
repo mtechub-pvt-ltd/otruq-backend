@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { stringify } = require("nodemon/lib/utils");
 
 const driverProfileSchema = new mongoose.Schema(
   {
@@ -17,6 +16,7 @@ const driverProfileSchema = new mongoose.Schema(
       lng: { type: String },
     },
     profileImage: { type: String },
+    status: { type: String, default: "active" },
   },
   {
     versionkey: false,

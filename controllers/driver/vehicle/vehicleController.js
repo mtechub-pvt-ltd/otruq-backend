@@ -55,7 +55,7 @@ router.route("/viewVehicle/:id").get((request, response) => {
       },
     ])
     .then((result) => {
-      if(result.length > 0) {
+      if (result.length > 0) {
         response.status(200).send({ message: "Vehicle Profile found", result });
       } else {
         response.status(400).send({ message: "Vehicle Profile not found" });
@@ -101,6 +101,22 @@ router.route("/updateVehicle/:id").put((request, response) => {
     })
     .catch((err) => {
       response.status(400).json(err);
+    });
+});
+
+///////////////// Update specific drivers Vehicle  //////////////
+// https://localhost:4000/vehicle/updateDriverVehicle/id
+
+router.route("/updateDriverVehicle/:id").put((request, response) => {
+  vehicleSchema
+    .findOneAndUpdate({ driver: request.params.id }, request.body, {
+      new: true,
+    })
+    .then((result) => {
+      response.status(200).json(result);
+    })
+    .catch((err) => {
+      response.status(500).json(err);
     });
 });
 

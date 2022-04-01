@@ -92,17 +92,19 @@ router.route("/viewDriverDocuments").get((request, response) => {
     },
   ])
     .then((result) => {
-      if (result) {
+      if (result.length>0) {
         response.status(200).send({ message: "Documents found", result });
       } else {
         response.status(400).send({ message: "Documents not found" });
       }
     })
     .catch((err) => {
-      response.status(500).json(err);
+      response.status(500).json({message: "Error in fetching data", err});
     });
 });
 
+////////////////// Update Sepcifc Driver Documents ////////////////////
+// // https://localhost:4000/documents/updateDriverDocuments/driverId
 router.route("/updateDriverDocuments/:id").put((request, response) => {
   upload.any()(request, response, (err) => {
     if (err) {
@@ -126,8 +128,7 @@ router.route("/updateDriverDocuments/:id").put((request, response) => {
         data.vehicleOwnership = uploadPath + element.filename;
       }
     });
-    console.log(data);
-    Documents.findByIdAndUpdate(request.params.id, data)
+    Documents.findOneAndUpdate({driver: request.params.id}, data)
       .then((result) => {
         // remove old images
         Object.keys(data).forEach((e) => {
